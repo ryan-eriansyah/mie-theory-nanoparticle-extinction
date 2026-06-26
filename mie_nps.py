@@ -1,45 +1,26 @@
-import os
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import CubicSpline
 from scipy.special import spherical_jn, spherical_yn
-from tkinter import Tk
-from tkinter.filedialog import askopenfilename
 
 #parameters
 
-sizes_nm = [23, 30, 37, 43, 60]   # radius (nm)
+sizes_nm = [23, 30, 37, 43, 60]   #radius (nm)
 n_medium = 1.333
 nmax = 10
 
-#load_data
+#load dielectric function data
+au_file = r"your-location\Permittivity_Gold_JohnsonChristy.txt"
 
-# Open file dialog in the script directory
-script_dir = os.path.dirname(os.path.abspath(__file__))
+data = np.loadtxt(au_file)
 
-Tk().withdraw()
-
-file_path = askopenfilename(
-    title="Select a text file",
-    initialdir=script_dir,
-    filetypes=[
-        ("Text files", "*.txt"),
-        ("All files", "*.*")
-    ]
-)
-
-data = np.loadtxt(file_path)
-
-print("Selected file:", file_path)
-print(data)
-
-# Akan terbuka File Explorer kemudian pilih Permittivity_Gold_JohnsonChristy
-
+#File-format:
+#Energy(eV)   eps1   eps2
 energy_raw = data[:,0]
 eps1_raw = data[:,1]
 eps2_raw = data[:,2]
 
-##constants
+#constants
 
 e_charge = 1.60217646e-19
 h_planck = 6.626068e-34
@@ -64,7 +45,7 @@ eps2 = cs2(energy)
 wavelength_m = h_planck * c_light / (e_charge * energy)
 wavelength_nm = wavelength_m * 1e9
 
-# sort wavelength
+#sort wavelength
 sort_idx = np.argsort(wavelength_nm)
 wavelength_nm = wavelength_nm[sort_idx]
 wavelength_m = wavelength_m[sort_idx]
@@ -179,85 +160,7 @@ plt.ylabel('Extinction Cross-section (m²)')
 
 plt.xlim(400, 900)
 
-# ==========================================
-# DATA
-# ==========================================
-
-size = [14, 19, 27, 30, 33]
-
-lspr_peaks = [
-    522.3,
-    525.0,
-    531.7,
-    535.7,
-    538.5
-]
-
-# warna mengikuti grafik extinction
-colors = [
-    'black',        # 14 nm
-    'red',          # 19 nm
-    'dodgerblue',   # 27 nm
-    'green',        # 30 nm
-    'hotpink'       # 33 nm
-]
-
+plt.grid(True)
 plt.legend()
 
-plt.tight_layout()
-# ==========================================
-# PLOT
-# ==========================================
-
-plt.figure(figsize=(8,6))
-
-for x, y, c in zip(size, lspr_peaks, colors):
-
-    plt.scatter(
-        x,
-        y,
-        color=c,
-        s=90
-    )
-
-# garis penghubung (opsional)
-plt.plot(
-    size,
-    lspr_peaks,
-    color='gray',
-    linewidth=1,
-    alpha=0.6
-)
-
-# ==========================================
-# LABELS
-# ==========================================
-
-plt.xlabel(
-    'Au Core Diameter (nm)',
-    fontsize=10
-)
-
-plt.ylabel(
-    'LSPR Peak Position (nm)',
-    fontsize=10
-)
-
-# ==========================================
-# AXIS
-# ==========================================
-
-plt.xlim(12, 35)
-plt.xticks(size)
-
-plt.ylim(520, 540)
-plt.yticks(np.arange(520, 541, 5))
-
-# ==========================================
-# STYLE
-# ==========================================
-
-ax = plt.gca()
-
-plt.tight_layout()
 plt.show()
